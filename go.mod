@@ -1,1 +1,1 @@
-module myGopher
+module main

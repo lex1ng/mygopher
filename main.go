@@ -32,7 +32,7 @@ func main() {
 	}
 
 	// init checker
-	worker := checker.NewChecker(records)
+	check := checker.NewChecker(records)
 
 	// start
 	var wg sync.WaitGroup
@@ -40,15 +40,15 @@ func main() {
 		wg.Add(1)
 		tmp := i
 		go func() {
-			worker.StartWorker(tmp)
+			check.StartWorker(tmp)
 			defer wg.Done()
 		}()
 	}
 	wg.Wait()
 
 	// save result
-	utils.ToCSV(worker.GetGoodResult(), "good.csv")
-	utils.ToCSV(worker.GetBadResult(), "bad.csv")
+	utils.ToCSV(check.GetGoodResult(), "good.csv")
+	utils.ToCSV(check.GetBadResult(), "bad.csv")
 
 	usedTime := time.Since(startTime)
 	fmt.Println("used time:", usedTime)

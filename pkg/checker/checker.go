@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+var client = &http.Client{
+	Timeout: 2 * time.Second,
+}
+
 type Checker struct {
 	sync.Mutex
 	count   int
@@ -44,9 +48,6 @@ func (c *Checker) next() int {
 }
 
 func check(url string) bool {
-	client := &http.Client{
-		Timeout: 2 * time.Second,
-	}
 	resp, err := client.Head(url)
 	if err != nil {
 		// 链接不可达（网络问题、域名无法解析等）
@@ -68,7 +69,6 @@ func (c *Checker) StartWorker(idx int) {
 
 		//fmt.Printf("worker %d is running with %d\n", idx, nextIdx)
 		record := c.records[nextIdx]
-
 		url := record[len(record)-1]
 		if url == "" {
 			c.bad.Append(record)

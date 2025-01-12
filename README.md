@@ -12,3 +12,10 @@ go build
 # worker 是go协助数量
 ./main --worker 100 
 ```
+
+# 0112 更新
+
+- 使用通信进行共享内存
+- 支持输出打印进度，取了个巧
+
+![img.png](img.png)

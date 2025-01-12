@@ -6,28 +6,35 @@ import (
 	"os"
 )
 
-func ReadData(filename string) ([][]string, error) {
+func ReadData(filename string, taskChan chan []string) {
+	defer close(taskChan)
 	fmt.Println("readData....")
-
 	file, err := os.Open(filename)
 	if err != nil {
-		return nil, err
+		fmt.Println("open file error:", err)
+		return
 	}
 	defer file.Close()
 
 	reader := csv.NewReader(file)
 
-	records, err := reader.ReadAll()
-
-	if err != nil {
-		return nil, err
+	for {
+		record, err := reader.Read()
+		if err != nil {
+			fmt.Printf("read data error: %v\n", err)
+			break
+		}
+		if record[0] == "" {
+			continue
+		}
+		taskChan <- record
 	}
-
-	return records[1:], nil
 
 }
 
-func ToCSV(results [][]string, filename string) {
+func ToCSV(channel chan []string, filename string, done chan struct{}) {
+	defer close(done)
+	//defer close(channel)
 	file, err := os.Create(filename)
 	if err != nil {
 		fmt.Println("create file error:", err)
@@ -43,7 +50,7 @@ func ToCSV(results [][]string, filename string) {
 		return
 	}
 
-	for _, record := range results {
+	for record := range channel {
 		if err := writer.Write(record); err != nil {
 			fmt.Println("write to csv error:", err)
 			return
